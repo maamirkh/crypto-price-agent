@@ -838,17 +838,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7b/03/f335d6c52b4a4761bcc83499789a1e2e16d9d201a58c327a9b5cc9a41bd9/pyarrow-22.0.0-cp314-cp314t-win_amd64.whl", hash = "sha256:0c34fe18094686194f204a3b1787a27456897d8a2d62caf84b61e8dfbc0252ae", size = 29185594, upload-time = "2025-10-24T10:09:53.111Z" },
 ]
 
-[[package]]
-name = "pyaudio"
-version = "0.2.14"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/26/1d/8878c7752febb0f6716a7e1a52cb92ac98871c5aa522cba181878091607c/PyAudio-0.2.14.tar.gz", hash = "sha256:78dfff3879b4994d1f4fc6485646a57755c6ee3c19647a491f790a0895bd2f87", size = 47066, upload-time = "2023-11-07T07:11:48.806Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8d/45/8d2b76e8f6db783f9326c1305f3f816d4a12c8eda5edc6a2e1d03c097c3b/PyAudio-0.2.14-cp312-cp312-win32.whl", hash = "sha256:5fce4bcdd2e0e8c063d835dbe2860dac46437506af509353c7f8114d4bacbd5b", size = 144750, upload-time = "2023-11-07T07:11:40.142Z" },
-    { url = "https://files.pythonhosted.org/packages/b0/6a/d25812e5f79f06285767ec607b39149d02aa3b31d50c2269768f48768930/PyAudio-0.2.14-cp312-cp312-win_amd64.whl", hash = "sha256:12f2f1ba04e06ff95d80700a78967897a489c05e093e3bffa05a84ed9c0a7fa3", size = 164126, upload-time = "2023-11-07T07:11:41.539Z" },
-    { url = "https://files.pythonhosted.org/packages/3a/77/66cd37111a87c1589b63524f3d3c848011d21ca97828422c7fde7665ff0d/PyAudio-0.2.14-cp313-cp313-win32.whl", hash = "sha256:95328285b4dab57ea8c52a4a996cb52be6d629353315be5bfda403d15932a497", size = 150982, upload-time = "2024-11-20T19:12:12.404Z" },
-    { url = "https://files.pythonhosted.org/packages/a5/8b/7f9a061c1cc2b230f9ac02a6003fcd14c85ce1828013aecbaf45aa988d20/PyAudio-0.2.14-cp313-cp313-win_amd64.whl", hash = "sha256:692d8c1446f52ed2662120bcd9ddcb5aa2b71f38bda31e58b19fb4672fffba69", size = 173655, upload-time = "2024-11-20T19:12:13.616Z" },
-]
+
 
 [[package]]
 name = "pydantic"
@@ -3692,20 +3682,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/45/58/38b5afbc1a800eeea951b9285d3912613f2603bdf897a4ab0f4bd7f405fc/python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104", size = 24546, upload-time = "2024-12-16T19:45:44.423Z" },
 ]
 
-[[package]]
-name = "pyttsx3"
-version = "2.99"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "comtypes", marker = "sys_platform == 'win32'" },
-    { name = "pyobjc", marker = "sys_platform == 'darwin'" },
-    { name = "pypiwin32", marker = "sys_platform == 'win32'" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/94/4e/a37786f666f4f084fc45e026ca1e63f7b49ac0d90b53fa35ae62b73c96a8/pyttsx3-2.99.tar.gz", hash = "sha256:a18a5601530a570c43491b4112887fc34c47e118fc937287db8d21905da1f74e", size = 33968, upload-time = "2025-07-08T12:24:21.314Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/84/14/9fb5842581f0419b5eb85f8c26c1c0c0f4cf6b4d5be638ae3157316a2650/pyttsx3-2.99-py3-none-any.whl", hash = "sha256:ff3e4ff756c24d72b9f3f2f304e0edaafd0f58adb0e6f4b90d930440cda8b207", size = 32157, upload-time = "2025-07-08T12:24:20.299Z" },
-]
+
 
 [[package]]
 name = "pytz"
@@ -3963,9 +3940,7 @@ dependencies = [
     { name = "gtts" },
     { name = "openai-agents" },
     { name = "pipwin" },
-    { name = "pyaudio" },
     { name = "python-dotenv" },
-    { name = "pyttsx3" },
     { name = "speechrecognition" },
     { name = "streamlit" },
 ]
@@ -3976,9 +3951,7 @@ requires-dist = [
     { name = "gtts", specifier = ">=2.5.4" },
     { name = "openai-agents", specifier = ">=0.1.0" },
     { name = "pipwin", specifier = ">=0.5.2" },
-    { name = "pyaudio", specifier = ">=0.2.14" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
-    { name = "pyttsx3", specifier = ">=2.99" },
     { name = "speechrecognition", specifier = ">=3.14.3" },
     { name = "streamlit", specifier = ">=1.50.0" },
 ]
