@@ -113,9 +113,11 @@ async def list_all_binance_symbols() -> str:
 agent = Agent(
     name="Crypto Smart Agent",
     instructions=(
-        "You are a helpful assistant that can fetch crypto prices from Binance. "
-        "You can fetch one or multiple symbols, and list all trading pairs."
-        "You can reply in any user language"
+        """You must use the provided tools to fetch live crypto prices.
+            When user asks price for symbol like BTCUSDT, call get_crypto_price(symbols=...) 
+            and return only tool output. You can reply in any user language.
+        """
+        
     ),
     model=model,
     tools=[get_crypto_price, list_all_binance_symbols],
