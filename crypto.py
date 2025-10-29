@@ -210,6 +210,48 @@ def speak_text_background(text: str, delay: float = 0.12, lang: str = "en"):
 st.set_page_config(page_title="Crypto Agent (Push-to-talk)", layout="centered")
 st.title("Crypto Agent — Push-to-talk + Text")
 
+
+# ---------- DEBUG helpers (temporary: paste near top, after st.title) ----------
+st.markdown("### DEBUG TOOLS (temporary)")
+if st.button("DEBUG: Test Binance direct (BTCUSDT)"):
+    try:
+        import httpx
+        resp = httpx.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=10.0)
+        st.write("status:", resp.status_code)
+        try:
+            st.write("json:", resp.json())
+        except Exception:
+            st.write("text:", resp.text[:1000])
+    except Exception as e:
+        st.write("Direct HTTP failed:", e)
+
+if st.button("DEBUG: Call get_crypto_price directly (BTCUSDT)"):
+    import asyncio, traceback
+    async def _t():
+        return await get_crypto_price("BTCUSDT")
+    try:
+        out = asyncio.new_event_loop().run_until_complete(_t())
+        st.write("Tool returned:", out)
+    except Exception as e:
+        st.write("Tool call error:", e)
+        st.text(traceback.format_exc())
+
+if st.button("DEBUG: List sample symbols"):
+    import asyncio, traceback
+    async def _t2():
+        return await list_all_binance_symbols()
+    try:
+        out = asyncio.new_event_loop().run_until_complete(_t2())
+        st.write("List tool returned:", out)
+    except Exception as e:
+        st.write("List tool error:", e)
+        st.text(traceback.format_exc())
+
+# show last binance raw resp if set by tool
+if "_last_binance_resp" in st.session_state:
+    st.write("DEBUG _last_binance_resp:", st.session_state._last_binance_resp)
+
+
 # 🔊 Enable audio button (Streamlit Cloud friendly)
 # Place this here (right after the title) so first user interaction enables browser audio autoplay.
 if "audio_enabled" not in st.session_state:
