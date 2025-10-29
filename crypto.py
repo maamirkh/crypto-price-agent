@@ -74,40 +74,108 @@ model = OpenAIChatCompletionsModel(
 
 config = RunConfig(model=model, model_provider=external_client, tracing_disabled=True)
 
-# ---------- Tools ----------
+
+
+# ---------- MULTI-EXCHANGE PRICE FETCHER ----------
 @function_tool
 async def get_crypto_price(symbols: str) -> str:
-    url_base = "https://api.binance.com/api/v3/ticker/price"
+    """
+    Get crypto prices from Binance, Coinbase, and Kraken.
+    If one API fails, it tries the next available.
+    """
+    exchanges = [
+        ("Binance", "https://api.binance.com/api/v3/ticker/price?symbol={}"),
+        ("Coinbase", "https://api.coinbase.com/v2/prices/{}-USD/spot"),
+        ("Kraken", "https://api.kraken.com/0/public/Ticker?pair={}"),
+    ]
+
     symbol_list = [s.strip().upper() for s in symbols.split(",")]
     results = []
+
     async with httpx.AsyncClient() as client:
         for symbol in symbol_list:
-            try:
-                url = f"{url_base}?symbol={symbol}"
-                resp = await client.get(url, timeout=10.0)
-                data = resp.json()
-                if resp.status_code == 200 and "price" in data:
-                    price = float(data["price"])
-                    results.append(f"{symbol}: ${price:,.8f}")
-                else:
-                    results.append(f"{symbol}: ❌ Invalid or not found")
-            except Exception as e:
-                results.append(f"{symbol}: ❌ Error - {str(e)}")
+            price_found = False
+            for name, base_url in exchanges:
+                try:
+                    url = base_url.format(symbol)
+                    resp = await client.get(url, timeout=10.0)
+                    data = resp.json()
+
+                    # Binance format
+                    if name == "Binance" and resp.status_code == 200 and "price" in data:
+                        price = float(data["price"])
+                        results.append(f"{symbol} ({name}): ${price:,.8f}")
+                        price_found = True
+                        break
+
+                    # Coinbase format
+                    elif name == "Coinbase" and "data" in data and "amount" in data["data"]:
+                        price = float(data["data"]["amount"])
+                        results.append(f"{symbol} ({name}): ${price:,.8f}")
+                        price_found = True
+                        break
+
+                    # Kraken format
+                    elif name == "Kraken" and "result" in data and len(data["result"]) > 0:
+                        first_key = list(data["result"].keys())[0]
+                        price = float(data["result"][first_key]["c"][0])
+                        results.append(f"{symbol} ({name}): ${price:,.8f}")
+                        price_found = True
+                        break
+
+                except Exception:
+                    continue
+
+            if not price_found:
+                results.append(f"{symbol}: ❌ Not found on any exchange")
+
     return "Prices:\n" + "\n".join(results)
 
+
+# ---------- MULTI-EXCHANGE SYMBOL LIST ----------
 @function_tool
-async def list_all_binance_symbols() -> str:
-    url = "https://api.binance.com/api/v3/exchangeInfo"
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, timeout=10.0)
-            data = response.json()
-        symbols = [s["symbol"] for s in data["symbols"] if s["status"] == "TRADING"]
-        total = len(symbols)
-        sample = ", ".join(symbols[:20])
-        return f"Total trading pairs: {total}\nSample: {sample}, ..."
-    except Exception as e:
-        return f"Error fetching symbols: {str(e)}"
+async def list_all_symbols() -> str:
+    """
+    Lists available trading pairs from Binance, Coinbase, and Kraken.
+    """
+    urls = {
+        "Binance": "https://api.binance.com/api/v3/exchangeInfo",
+        "Coinbase": "https://api.coinbase.com/v2/currencies",
+        "Kraken": "https://api.kraken.com/0/public/AssetPairs",
+    }
+
+    results = []
+
+    async with httpx.AsyncClient() as client:
+        # Binance
+        try:
+            resp = await client.get(urls["Binance"], timeout=10.0)
+            data = resp.json()
+            symbols = [s["symbol"] for s in data["symbols"] if s["status"] == "TRADING"]
+            results.append(f"Binance: {len(symbols)} pairs (e.g., {', '.join(symbols[:10])})")
+        except Exception as e:
+            results.append(f"Binance: ❌ Error - {str(e)}")
+
+        # Coinbase
+        try:
+            resp = await client.get(urls["Coinbase"], timeout=10.0)
+            data = resp.json()
+            currencies = [c["id"] for c in data["data"]]
+            results.append(f"Coinbase: {len(currencies)} assets (e.g., {', '.join(currencies[:10])})")
+        except Exception as e:
+            results.append(f"Coinbase: ❌ Error - {str(e)}")
+
+        # Kraken
+        try:
+            resp = await client.get(urls["Kraken"], timeout=10.0)
+            data = resp.json()
+            pairs = list(data["result"].keys())
+            results.append(f"Kraken: {len(pairs)} pairs (e.g., {', '.join(pairs[:10])})")
+        except Exception as e:
+            results.append(f"Kraken: ❌ Error - {str(e)}")
+
+    return "\n".join(results)
+
 
 # ---------- Agent ----------
 agent = Agent(
@@ -120,7 +188,7 @@ agent = Agent(
         
     ),
     model=model,
-    tools=[get_crypto_price, list_all_binance_symbols],
+    tools=[get_crypto_price, list_all_symbols],
 )
 
 # ---------- Utilities ----------
@@ -210,46 +278,6 @@ def speak_text_background(text: str, delay: float = 0.12, lang: str = "en"):
 st.set_page_config(page_title="Crypto Agent (Push-to-talk)", layout="centered")
 st.title("Crypto Agent — Push-to-talk + Text")
 
-
-# ---------- DEBUG helpers (temporary: paste near top, after st.title) ----------
-st.markdown("### DEBUG TOOLS (temporary)")
-if st.button("DEBUG: Test Binance direct (BTCUSDT)"):
-    try:
-        import httpx
-        resp = httpx.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=10.0)
-        st.write("status:", resp.status_code)
-        try:
-            st.write("json:", resp.json())
-        except Exception:
-            st.write("text:", resp.text[:1000])
-    except Exception as e:
-        st.write("Direct HTTP failed:", e)
-
-if st.button("DEBUG: Call get_crypto_price directly (BTCUSDT)"):
-    import asyncio, traceback
-    async def _t():
-        return await get_crypto_price("BTCUSDT")
-    try:
-        out = asyncio.new_event_loop().run_until_complete(_t())
-        st.write("Tool returned:", out)
-    except Exception as e:
-        st.write("Tool call error:", e)
-        st.text(traceback.format_exc())
-
-if st.button("DEBUG: List sample symbols"):
-    import asyncio, traceback
-    async def _t2():
-        return await list_all_binance_symbols()
-    try:
-        out = asyncio.new_event_loop().run_until_complete(_t2())
-        st.write("List tool returned:", out)
-    except Exception as e:
-        st.write("List tool error:", e)
-        st.text(traceback.format_exc())
-
-# show last binance raw resp if set by tool
-if "_last_binance_resp" in st.session_state:
-    st.write("DEBUG _last_binance_resp:", st.session_state._last_binance_resp)
 
 
 # 🔊 Enable audio button (Streamlit Cloud friendly)
