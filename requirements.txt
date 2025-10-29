@@ -1,0 +1,6 @@
+streamlit
+audio-recorder-streamlit
+gTTS
+SpeechRecognition
+httpx
+python-dotenv

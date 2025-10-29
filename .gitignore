@@ -1,11 +1,29 @@
 # Python-generated files
+# Python / Streamlit
 __pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+*.pyc
+*.pyo
+*.pyd
 
-# Virtual environments
-.venv
+# Virtualenv
+.venv/
+venv/
+env/
+ENV/
+
+# Streamlit secrets & env
+.streamlit/secrets.toml
 .env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# temp/audio files
+*.wav
+*.mp3
