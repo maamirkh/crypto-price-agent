@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "audio-recorder-streamlit>=0.0.10",
+    "azure-cognitiveservices-speech>=1.47.0",
     "gtts>=2.5.4",
+    "langdetect>=1.0.9",
     "openai-agents>=0.1.0",
     "pipwin>=0.5.2",
     "python-dotenv>=1.1.1",
